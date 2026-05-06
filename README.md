@@ -22,6 +22,18 @@
 ```bash
 cargo build --release
 # 編譯好嘅執行檔會喺 target/release/nine-poe
+
+# 建立 Global bin folder
+mkdir -p ~/.nine-poe/bin/
+
+# 放relase版本去好嘅地方
+cp target/debug/nine-poe /path/you/like
+
+# 更新 設定檔 (以下是Mac Terminal例子)
+echo 'export PATH="$PATH:~/path/you/like/"' >> ~/.zshrc
+
+# Activate 個change
+source ~/.zshrc
 ```
 
 ### 2️⃣ 設定 API Key
