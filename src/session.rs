@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 use dirs::home_dir;
+use mime_guess;
+use base64::Engine;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
@@ -8,9 +10,62 @@ const CONFIG_DIR: &str = ".nine-poe";
 const SESSIONS_DIR: &str = "sessions";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(tag = "type")]
+pub enum ContentPart {
+    #[serde(rename = "text")]
+    Text { text: String },
+    #[serde(rename = "image_url")]
+    ImageUrl { image_url: ImageUrl },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ImageUrl {
+    pub url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub detail: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub enum Content {
+    Text(String),
+    Parts(Vec<ContentPart>),
+}
+
+impl Serialize for Content {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            Content::Text(s) => serializer.serialize_str(s),
+            Content::Parts(parts) => parts.serialize(serializer),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Content {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum ContentHelper {
+            Text(String),
+            Parts(Vec<ContentPart>),
+        }
+        
+        match ContentHelper::deserialize(deserializer)? {
+            ContentHelper::Text(s) => Ok(Content::Text(s)),
+            ContentHelper::Parts(parts) => Ok(Content::Parts(parts)),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
     pub role: String,
-    pub content: String,
+    pub content: Content,
 }
 
 #[derive(Debug)]
@@ -21,6 +76,8 @@ pub enum SessionError {
     FailedToWriteSession(std::io::Error),
     FailedToParseJson(serde_json::Error),
     FailedToSerializeJson(serde_json::Error),
+    FailedToReadFile(std::io::Error),
+    FailedToEncodeBase64,
 }
 
 pub fn normalize_session_name(name: &str) -> String {
@@ -72,4 +129,15 @@ pub fn save_session(session_name: &str, messages: &[Message]) -> Result<(), Sess
     
     fs::write(&path, json)
         .map_err(SessionError::FailedToWriteSession)
+}
+
+pub fn encode_file_to_data_uri(file_path: &str) -> Result<String, SessionError> {
+    let bytes = fs::read(file_path)
+        .map_err(SessionError::FailedToReadFile)?;
+    
+    let mime_type = mime_guess::from_path(file_path)
+        .first_or_octet_stream();
+    
+    let encoded = base64::engine::general_purpose::STANDARD.encode(&bytes);
+    Ok(format!("data:{};base64,{}", mime_type, encoded))
 }
