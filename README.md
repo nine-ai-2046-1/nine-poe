@@ -142,4 +142,4 @@ nine-poe/
 
 ## 📄 授權
 
-MIT License（或者你鍾意嘅其他授權）
+MIT License
