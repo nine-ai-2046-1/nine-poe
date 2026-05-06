@@ -1,6 +1,6 @@
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
-use crate::session::Message;
+use crate::session::{Message, Content, ContentPart};
 
 const API_URL: &str = "https://api.poe.com/v1/chat/completions";
 const ANTHROPIC_VERSION: &str = "2023-06-01";
@@ -23,7 +23,7 @@ struct Choice {
 
 #[derive(Deserialize)]
 struct ResponseMessage {
-    content: String,
+    content: Content,
 }
 
 #[derive(Debug)]
@@ -31,6 +31,21 @@ pub enum ApiError {
     RequestFailed(reqwest::Error),
     NoChoices,
     FailedToParseResponse(serde_json::Error),
+    UnexpectedResponseFormat,
+}
+
+fn extract_text_from_content(content: Content) -> Option<String> {
+    match content {
+        Content::Text(s) => Some(s),
+        Content::Parts(parts) => {
+            for part in parts {
+                if let ContentPart::Text { text } = part {
+                    return Some(text);
+                }
+            }
+            None
+        }
+    }
 }
 
 pub fn send_message(
@@ -58,7 +73,10 @@ pub fn send_message(
         .map_err(ApiError::RequestFailed)?;
     
     match response_body.choices.into_iter().next() {
-        Some(choice) => Ok(choice.message.content),
+        Some(choice) => {
+            extract_text_from_content(choice.message.content)
+                .ok_or(ApiError::UnexpectedResponseFormat)
+        }
         None => Err(ApiError::NoChoices),
     }
 }
