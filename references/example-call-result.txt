@@ -1,0 +1,21 @@
+{
+  "id": "chatcmpl-1211f4f60f2ccb85115341a3",
+  "object": "chat.completion",
+  "created": 1778040473,
+  "model": "Mistral-Small-4",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "What can i help you?"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2,
+    "completion_tokens": 6,
+    "total_tokens": 8
+  }
+ }

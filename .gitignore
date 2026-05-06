@@ -1,0 +1,18 @@
+# Rust build artifacts
+target/
+
+# Environment variables (contains sensitive tokens/keys)
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Session data (user-specific chat history)
+~/.nine-poe/
