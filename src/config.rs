@@ -7,6 +7,7 @@ const CONFIG_DIR: &str = ".nine-poe";
 const CONFIG_FILE: &str = "config.toml";
 const API_KEY_FIELD: &str = "NINE_POE_API_KEY";
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum ConfigError {
     HomeDirNotFound,
@@ -17,6 +18,7 @@ pub enum ConfigError {
     ApiKeyMissing,
 }
 
+#[allow(dead_code)]
 pub fn get_config_path() -> Result<PathBuf, ConfigError> {
     let home = home_dir().ok_or(ConfigError::HomeDirNotFound)?;
     Ok(home.join(CONFIG_DIR).join(CONFIG_FILE))

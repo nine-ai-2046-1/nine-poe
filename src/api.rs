@@ -26,11 +26,11 @@ struct ResponseMessage {
     content: Content,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum ApiError {
     RequestFailed(reqwest::Error),
     NoChoices,
-    FailedToParseResponse(serde_json::Error),
     UnexpectedResponseFormat,
 }
 

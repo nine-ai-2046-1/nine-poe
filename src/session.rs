@@ -68,6 +68,7 @@ pub struct Message {
     pub content: Content,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum SessionError {
     HomeDirNotFound,
