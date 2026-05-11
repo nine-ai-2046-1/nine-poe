@@ -18,6 +18,7 @@ pub enum ConfigError {
     ApiKeyMissing,
 }
 
+#[allow(dead_code)]
 pub fn get_config_path() -> Result<PathBuf, ConfigError> {
     let home = home_dir().ok_or(ConfigError::HomeDirNotFound)?;
     Ok(home.join(CONFIG_DIR).join(CONFIG_FILE))
