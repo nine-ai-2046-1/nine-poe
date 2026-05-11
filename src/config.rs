@@ -7,6 +7,7 @@ const CONFIG_DIR: &str = ".nine-poe";
 const CONFIG_FILE: &str = "config.toml";
 const API_KEY_FIELD: &str = "NINE_POE_API_KEY";
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum ConfigError {
     HomeDirNotFound,
