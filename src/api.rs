@@ -30,7 +30,6 @@ struct ResponseMessage {
 pub enum ApiError {
     RequestFailed(reqwest::Error),
     NoChoices,
-    FailedToParseResponse(serde_json::Error),
     UnexpectedResponseFormat,
 }
 
